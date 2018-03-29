@@ -1,189 +1,45 @@
-
 #include <iostream>
 #include <conio.h>
 #include <windows.h>
 #include <cmath>
+#include <SFML/Graphics.hpp>
+
 
 using namespace std;
-int gameOver = true;
 
-enum motion{
-    STOP = 0, UP, DOWN, LEFT, RIGHT
-};
-
-int width = 20;
-int height = 20;
-int x = width / 2;
-int y = height / 2;
-int fruitX = rand() % width;
-int fruitY = rand() % height;
-int snakeSteps = 0;
-int gameScore = 0;
-
-class gameFruits{
+class Menu{
 public:
-    void greenApple(){
-        cout << "g" << endl;
+    void setParameters(){
     }
-    void orangeApple(){
-        cout << "o" << endl;
-    }
-    void poisonApple(){
-        cout << "p" << endl;
-    }
-    void blockApple(){
-        cout << "x" << endl;
-    }
+};Menu menu;
 
-};
-
-class settings{
-public:
-
-    motion move;
-    void inputKeys(){
-        if(_kbhit()){
-            switch (getch()){
-                case 'a':
-                    move = LEFT;
-                    break;
-                case 'd':
-                    move = RIGHT;
-                    break;
-                case 'w':
-                    move = UP;
-                    break;
-                case 's':
-                    move = DOWN;
-                    break;
-                case 'x': gameOver = true;
-
-            }
-        }
-    }
-
-};
-
-class gameMenu{
+using namespace std;
+class GameDraw{
 private:
-    void printLimiter(){
-        cout << "=============================" << endl;
-    }
+    int x = 0;
+    int y = 0;
+
 public:
-    void printMenu() {
-        int choice;
-        printLimiter();
-        cout << "1: New Game" << endl;
-        cout << "2: Show last result" << endl;
-        cout << "3: Exit game" << endl;
-        printLimiter();
-        cin >> choice;
-        playerChoice(choice);
+    void mapDraw() {
     }
-    void playerChoice(int choice) {
-        switch(choice){
-            case 1: gameOver = false; break;
-            case 2: cout << "vasya ti ne prav";
-            case 3: return; break;
-            default:return;
-        }
-    }
-};
+};GameDraw gameDraw;
 
-class Draw : settings {
+class gameCycle{
 public:
-
-    void drawGame() {
-        system("cls");
-        for (int i = 0; i < width + 1; i++) {
-            cout << "#";
-        }
-        cout << endl;
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if (j == 0 || j == width) {
-                    cout << "#";
-                }
-                if(i == y && j == x) {
-                    snakeHead();
-                }
-                else if(i == fruitY && j == fruitX){
-                    gameFruits fruits;
-                    fruits.greenApple();
-                }
-                drawSpace();
-            }
-            cout << endl;
-        }
-
-        for (int i = 0; i < width + 1; i++) {
-            cout << "#";
-        }
-        cout << endl;
-
-        cout << "/n" << snakeSteps;
-        cout << gameScore;
-
+    void configureGame(){
+        menu.setParameters();
     }
 
-    void snakeHead() {
-        cout << "0";
-    }
-
-    void drawSpace(){
-        cout << " ";
-    }
-
-    void inputControl(){
-    }
-
-};
-
-class Logical : settings {
-public:
-    void buttonInput() {
-        inputKeys();
-        switch (move) {
-            case LEFT:
-                x--;
-                break;
-            case RIGHT:
-                x++;
-                break;
-            case UP:
-                y--;
-                break;
-            case DOWN:
-                y++;
-                break;
+    void snakeGameCycle() {
+            sf::RenderWindow window(sf::VideoMode(200, 200), "Lesson 1. kychka-pc.ru");
         }
+};gameCycle game;
 
-        if(move){
-            snakeSteps++;
-        }
-    }
-};
 
-    class gameCycle : Logical {
-    public:
-        Draw drawGame;
+int main(){
+    game.configureGame();
+    game.snakeGameCycle();
 
-        void game() {
-            while (!gameOver) {
-                drawGame.drawGame();
-                buttonInput();
-            }
-        }
-
-    };
-
-    int main() {
-        setlocale(LC_ALL, "Russian");
-        gameMenu menu;
-        gameCycle gameCycle;
-
-        menu.printMenu();
-        gameCycle.game();
-        return 0;
-    }
+    getch();
+    return 0;
+}
