@@ -5,7 +5,7 @@ project(${PROJECT_NAME})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc")
 set(CMAKE_CXX_STANDARD 14)
 
-set(SOURCE_FILES main.cpp map.h)
+set(SOURCE_FILES main.cpp map.h view.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
