@@ -1,7 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <time.h>
-#include "Pojo.h"
+#include <iostream>
 using namespace sf;
+RenderWindow window(VideoMode(1280, 720), "Snake Game!");
 
 int Weight=30, Height=20;
 int size=20;
@@ -10,11 +11,12 @@ int h = size*Height;
 
 int dir,num=4;
 
-struct Snake
-{ int x,y;}  snake[100];
+struct Snake {
+    int x,y;
+}  snake[100];
 
 
-class snakeControl{
+class snakeLogic{
 public:
     void control() {
         if (snake[0].x > Weight) snake[0].x = 0;
@@ -23,7 +25,8 @@ public:
         if (snake[0].y < 0) snake[0].y = Height;
 
         for (int i = 1; i < num; i++) {
-            if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) num = i;
+            if (snake[0].x == snake[i].x && snake[0].y == snake[i].y)
+                num = i;
         }
     }
     void keyboardControl(){
@@ -33,126 +36,107 @@ public:
         if (dir==2) snake[0].x+=1;
         if (dir==3) snake[0].y-=1;
     }
-};
-
-class Rules : snakeControl{
-private:
-    int fruitsX;
-    int fruitsY;
-    int difficultyLevel = 3;
-public:
-    int getDifficultyLevel() const {
-        return difficultyLevel;
-    }
-
-    void setDifficultyLevel(int difficultyLevel) {
-        Rules::difficultyLevel = difficultyLevel;
-    }
-
-    int getFruitsX() const {
-        return fruitsX;
-    }
-
-    void setFruitsX(int fruitsX) {
-        Rules::fruitsX = fruitsX;
-    }
-
-    int getFruitsY() const {
-        return fruitsY;
-    }
-
-    void setFruitsY(int fruitsY) {
-        Rules::fruitsY = fruitsY;
-    }
-
-    Rules(){
-        fruitsX = getFruitsX();
-        fruitsY = getFruitsY();
-    }
-
-
     void Tick() {
         for (int i=num;i>0;--i) {
             snake[i].x=snake[i-1].x;
             snake[i].y=snake[i-1].y;
         }
-
         keyboardControl();
-        randomizeFruits();
         control();
-
-    }
-
-    void randomizeFruits(){
-        if ((snake[0].x == getFruitsX()) && (snake[0].y == getFruitsY())) {
-            num++;
-            setFruitsX(rand() % Weight);
-            setFruitsY(rand() % Height);
-        }
     }
 };
 
-class GreenApple : Rules{
+class Fruits{
 private:
-    GreenApple(){
-        randomizeFruits();
+    int objectX;
+    int objectY;
+public:
+    Fruits() {
+        objectX = rand() % Weight * size;
+        objectY = rand() % Height * size;
+    }
+
+    int getObjectX() const {
+        return objectX;
+    }
+
+    void setObjectX(int objectX) {
+        Fruits::objectX = objectX;
+    }
+
+    int getObjectY() const {
+        return objectY;
+    }
+
+    void setObjectY(int objectY) {
+        Fruits::objectY = objectY;
+    }
+
+    void spawnFruits(Sprite objectSprite) {
+        objectSprite.setPosition(getObjectX(), getObjectY());
+        window.draw(objectSprite);
+        eatFruits();
+    }
+
+    void eatFruits() {
+        if (snake[0].x * size == getObjectX() && snake[0].y * size == getObjectY()) {
+            num++;
+            setObjectX(rand() % Weight * size);
+            setObjectY(rand() % Height * size);
+        }
     }
 };
 
 int main()
 {
     srand(time(0));
-    Rules rules;
-    Rules greenApple;
-    Rules redApple;
-
-    RenderWindow window(VideoMode(1280, 720), "Snake Game!");
+    snakeLogic logic;
+    Fruits whiteApple;
+    Fruits greenApple;
 
     Texture gameTableTexture;
     Texture snakeTexture;
     Texture borderMap;
     Texture redAppleTexture;
-    Texture greenAppleTexture;
+    Texture whiteAppleTexture;
     gameTableTexture.loadFromFile("../Images/map.png");
     snakeTexture.loadFromFile("../images/green.png");
     borderMap.loadFromFile("../Images/map.png");
     redAppleTexture.loadFromFile("../Images/red.png");
-    greenAppleTexture.loadFromFile("../Images/green.png");
+    whiteAppleTexture.loadFromFile("../Images/white.png");
 
 
     Sprite gameBackground(gameTableTexture);
     Sprite snakeSprite(snakeTexture);
     Sprite gameBorderSprite(gameBorderSprite);
     Sprite redAppleSprite(redAppleTexture);
-    Sprite greenAppleSprite(greenAppleSprite);
+    Sprite whiteAppleSprite(whiteAppleTexture);
+
 
     Clock clock;
     float timer=0, delay=0.1;
-
-    rules.setFruitsX(10);
-    rules.setFruitsY(10);
 
     while (window.isOpen())
     {
         float time = clock.getElapsedTime().asSeconds();
         clock.restart();
         timer+=time;
-
+                                                                            // На случай, если захотим выйти
         Event e;
         while (window.pollEvent(e))
         {
             if (e.type == Event::Closed)
                 window.close();
         }
-
+                                                                            // Наши нажатия на клавиши
         if (Keyboard::isKeyPressed(Keyboard::Left)) dir=1;
         if (Keyboard::isKeyPressed(Keyboard::Right))  dir=2;
         if (Keyboard::isKeyPressed(Keyboard::Up)) dir=3;
         if (Keyboard::isKeyPressed(Keyboard::Down)) dir=0;
-                                                                                //Скорость игры, таймер
+                                                                                //Скорость игры, таймер, делаем перемещение змейки плавным
         if (timer>delay){
             timer=0;
-            rules.Tick();
+            logic.Tick();
         }
                                                                             //Отрисовка
         window.clear(Color(93, 131, 255));
@@ -170,8 +154,9 @@ int main()
             window.draw(snakeSprite);
         }
 
-            redAppleSprite.setPosition(rules.getFruitsX() * size, rules.getFruitsY() * size);
-            window.draw(redAppleSprite);
+
+            whiteApple.spawnFruits(whiteAppleSprite);
+            greenApple.spawnFruits(snakeSprite);
 
 
 
