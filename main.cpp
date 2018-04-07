@@ -1,180 +1,182 @@
-#include <iostream>
-#include <conio.h>
-#include <windows.h>
-#include <cmath>
 #include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-#include <sstream>
-#include "map.h"
-#include "view.h"
+#include <time.h>
+#include "Pojo.h"
 using namespace sf;
 
-CircleShape shape(50);
+int Weight=30, Height=20;
+int size=20;
+int w = size*Weight;
+int h = size*Height;
 
-struct pos{
-    int x;
-    int y;
-};
+int dir,num=4;
 
-class PlayerSnake{
-private:
-    float x = 0;
-    float y = 0;
+struct Snake
+{ int x,y;}  snake[100];
 
+
+class snakeControl{
 public:
-   float w, h, dx, dy, speed;
-    int dir = 0;
-    String File;
-    Image image;
-    Texture texture;
-    Sprite sprite;
-    int playerScore;
+    void control() {
+        if (snake[0].x > Weight) snake[0].x = 0;
+        if (snake[0].x < 0) snake[0].x = Weight;
+        if (snake[0].y > Height) snake[0].y = 0;
+        if (snake[0].y < 0) snake[0].y = Height;
 
-    PlayerSnake(String F, int X, int Y, float W, float H){
-        File = F;
-        w = W;
-        h = H;
-        image.loadFromFile("../Images/" + File);
-        texture.loadFromImage(image);
-        sprite.setTexture(texture);
-        x = X;
-        y = Y;
-        sprite.setTextureRect(IntRect(190, 0, w, h));
-        playerScore = 0;
-    }
-
-    void update(float time){
-        switch (dir){
-            case 0: dx = speed; dy = 0;
-                break;
-            case 1: dx = -speed; dy = 0;
-                break;
-            case 2: dx = 0; dy = speed;
-                break;
-            case 3: dx = 0; dy = -speed;
-                break;
-        }
-        x+= dx*time;
-        y+= dy*time;
-
-        sprite.setPosition(x, y);
-        mapRules();
-    }
-
-    float getPlayerCoordinateX(){
-        return x;
-    }
-    float getPlayerCoordinateY(){
-        return y;
-    }
-
-    void mapRules(){
-        for(int i = y / 32; i < (y + h) / 32; i++){
-            for(int j = x / 32; j < (x + w) / 32; j++){
-                if(TileMap[i][j] == '0'){
-                    if(dy > 0){
-                        y = i * 32 - h;
-                    }
-                    if(dy < 0){
-                        y = i * 32 + 32;
-                    }
-                    if(dx > 0){
-                        x = j * 32 - w;
-                    }
-                    if(dx < 0){
-                        x = j * 32 + 32;
-                    }
-                }
-                if(TileMap[i][j] == 's'){
-                    TileMap[i][j] = ' ';
-                    playerScore++;
-                }
-            }
+        for (int i = 1; i < num; i++) {
+            if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) num = i;
         }
     }
+    void keyboardControl(){
 
+        if (dir==0) snake[0].y+=1;
+        if (dir==1) snake[0].x-=1;
+        if (dir==2) snake[0].x+=1;
+        if (dir==3) snake[0].y-=1;
+    }
 };
 
-int main(){
-    RenderWindow window(VideoMode(640, 480), "Snake");
-    view.reset(FloatRect(0, 0, 640, 480));
+class Rules : snakeControl{
+private:
+    int fruitsX;
+    int fruitsY;
+    int difficultyLevel = 3;
+public:
+    int getDifficultyLevel() const {
+        return difficultyLevel;
+    }
+
+    void setDifficultyLevel(int difficultyLevel) {
+        Rules::difficultyLevel = difficultyLevel;
+    }
+
+    int getFruitsX() const {
+        return fruitsX;
+    }
+
+    void setFruitsX(int fruitsX) {
+        Rules::fruitsX = fruitsX;
+    }
+
+    int getFruitsY() const {
+        return fruitsY;
+    }
+
+    void setFruitsY(int fruitsY) {
+        Rules::fruitsY = fruitsY;
+    }
+
+    Rules(){
+        fruitsX = getFruitsX();
+        fruitsY = getFruitsY();
+    }
+
+
+    void Tick() {
+        for (int i=num;i>0;--i) {
+            snake[i].x=snake[i-1].x;
+            snake[i].y=snake[i-1].y;
+        }
+
+        keyboardControl();
+        randomizeFruits();
+        control();
+
+    }
+
+    void randomizeFruits(){
+        if ((snake[0].x == getFruitsX()) && (snake[0].y == getFruitsY())) {
+            num++;
+            setFruitsX(rand() % Weight);
+            setFruitsY(rand() % Height);
+        }
+    }
+};
+
+class GreenApple : Rules{
+private:
+    GreenApple(){
+        randomizeFruits();
+    }
+};
+
+int main()
+{
+    srand(time(0));
+    Rules rules;
+    Rules greenApple;
+    Rules redApple;
+
+    RenderWindow window(VideoMode(1280, 720), "Snake Game!");
+
+    Texture gameTableTexture;
+    Texture snakeTexture;
+    Texture borderMap;
+    Texture redAppleTexture;
+    Texture greenAppleTexture;
+    gameTableTexture.loadFromFile("../Images/map.png");
+    snakeTexture.loadFromFile("../images/green.png");
+    borderMap.loadFromFile("../Images/map.png");
+    redAppleTexture.loadFromFile("../Images/red.png");
+    greenAppleTexture.loadFromFile("../Images/green.png");
+
+
+    Sprite gameBackground(gameTableTexture);
+    Sprite snakeSprite(snakeTexture);
+    Sprite gameBorderSprite(gameBorderSprite);
+    Sprite redAppleSprite(redAppleTexture);
+    Sprite greenAppleSprite(greenAppleSprite);
 
     Clock clock;
-    PlayerSnake player("snake.png", 200, 200, 65, 65);
+    float timer=0, delay=0.1;
 
-    Font font;
-    font.loadFromFile("../Images/CyrilicOld.TTF");
-    Text text(" ", font, 20);
-    text.setColor(Color::Green);
-    text.setStyle(Text::Bold);
+    rules.setFruitsX(10);
+    rules.setFruitsY(10);
 
-    Image mapimage;
-    mapimage.loadFromFile("../Images/map.png");
-    Texture map;
-    map.loadFromImage(mapimage);
-    Sprite mapsprite;
-    mapsprite.setTexture(map);
-
-    while(window.isOpen()){
-        float time = clock.getElapsedTime().asMicroseconds();
+    while (window.isOpen())
+    {
+        float time = clock.getElapsedTime().asSeconds();
         clock.restart();
-        time = time / 800;
+        timer+=time;
 
-        Event event;
-        while(window.pollEvent(event)){
-            if(event.type == Event::Closed){
+        Event e;
+        while (window.pollEvent(e))
+        {
+            if (e.type == Event::Closed)
                 window.close();
+        }
+
+        if (Keyboard::isKeyPressed(Keyboard::Left)) dir=1;
+        if (Keyboard::isKeyPressed(Keyboard::Right))  dir=2;
+        if (Keyboard::isKeyPressed(Keyboard::Up)) dir=3;
+        if (Keyboard::isKeyPressed(Keyboard::Down)) dir=0;
+                                                                                //Скорость игры, таймер
+        if (timer>delay){
+            timer=0;
+            rules.Tick();
+        }
+                                                                            //Отрисовка
+        window.clear(Color(93, 131, 255));
+
+        for (int i=0; i<Weight + 1; i++)
+            for (int j=0; j<Height + 1; j++) {
+                gameBackground.setPosition(i*size,j*size);
+                gameBackground.setTextureRect(IntRect(0, 0, 24, 24));
+                window.draw(gameBackground);
             }
+
+        for (int i=0;i<num;i++) {
+            snakeSprite.setPosition(snake[i].x*size, snake[i].y*size);
+            snakeSprite.setTextureRect(IntRect(0, 0, 16, 16));
+            window.draw(snakeSprite);
         }
 
-        if ((Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))){
-            player.dir = 1;
-            player.speed = 0.1;
-            player.sprite.setTextureRect(IntRect(190, 64, 65, 64));
-        }
-        if ((Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))){
-            player.dir = 0;
-            player.speed = 0.1;
-            player.sprite.setTextureRect(IntRect(260, 0, 70, 64));
-        }
-        if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S))){
-            player.dir = 2;
-            player.speed = 0.1;
-            player.sprite.setTextureRect(IntRect(260, 65, 65, 65));
-        }
-        if ((Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))){
-            player.dir = 3;
-            player.speed = 0.1;
-            player.sprite.setTextureRect(IntRect(190, 0, 65, 65));
-        }
-        getPlayerCoordinateView(player.getPlayerCoordinateX(), player.getPlayerCoordinateY());
+            redAppleSprite.setPosition(rules.getFruitsX() * size, rules.getFruitsY() * size);
+            window.draw(redAppleSprite);
 
-        player.update(time);
 
-        window.setView(view);
-        window.clear(Color(102, 153, 255));
 
-        for(int i = 0; i < HEIGHT_MAP; i++){
-            for(int j = 0; j < WIDTH_MAP; j++){
-                if(TileMap[i][j] == ' ') mapsprite.setTextureRect(IntRect(0, 0, 32, 32));
-                if(TileMap[i][j] == 's') mapsprite.setTextureRect(IntRect(32, 0, 32, 32));
-                if(TileMap[i][j] == '0') mapsprite.setTextureRect(IntRect(64, 0, 32, 32));
 
-                mapsprite.setPosition(j * 32, i * 32);
-
-                window.draw(mapsprite);
-            }
-        }
-        std::ostringstream playerScoreString;
-        playerScoreString << player.playerScore;
-        text.setString("Player score:" + playerScoreString.str());
-        text.setPosition(view.getCenter().x - 165, view.getCenter().y - 200);
-        window.draw(text);
-
-        window.draw(player.sprite);
-        window.display();
-
+            window.display();
     }
 
     return 0;
