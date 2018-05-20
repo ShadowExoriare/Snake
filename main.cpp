@@ -4,8 +4,8 @@
 using namespace sf;
 RenderWindow window(VideoMode(1280, 720), "Snake Game!");
 
-int Weight=30, Height=20;
-int size=20;
+int Weight=10, Height=10;
+int size=64;
 int w = size*Weight;
 int h = size*Height;
 
@@ -95,29 +95,31 @@ int main()
     Fruits greenApple;
 
     Texture gameTableTexture;
-    Texture snakeTexture;
-    Texture borderMap;
+    Texture snakeHeadTexture;
     Texture redAppleTexture;
-    Texture whiteAppleTexture;
-    gameTableTexture.loadFromFile("../Images/map.png");
-    snakeTexture.loadFromFile("../images/green.png");
-    borderMap.loadFromFile("../Images/map.png");
-    redAppleTexture.loadFromFile("../Images/red.png");
-    whiteAppleTexture.loadFromFile("../Images/white.png");
+    Texture greenAppleTexture;
+    Texture snakePartsTexture;
+
+    gameTableTexture.loadFromFile("../Images/background.jpg");
+    snakeHeadTexture.loadFromFile("../images/snake.png");
+    snakePartsTexture.loadFromFile("../Images/snake.png");
+    redAppleTexture.loadFromFile("../Images/appleRed.png");
+    greenAppleTexture.loadFromFile("../Images/appleGreen.png");
 
 
     Sprite gameBackground(gameTableTexture);
-    Sprite snakeSprite(snakeTexture);
-    Sprite gameBorderSprite(gameBorderSprite);
+    Sprite snakeHeadSprite(snakeHeadTexture);
+    Sprite snakePartsSprite(snakePartsTexture);
     Sprite redAppleSprite(redAppleTexture);
-    Sprite whiteAppleSprite(whiteAppleTexture);
+    Sprite greenAppleSprite(greenAppleTexture);
+
+    snakeHeadSprite.setTextureRect(IntRect(250, 0, 64, 64));
 
 
     Clock clock;
     float timer=0, delay=0.1;
 
-    while (window.isOpen())
-    {
+    while (window.isOpen()) {
         float time = clock.getElapsedTime().asSeconds();
         clock.restart();
         timer+=time;
@@ -129,10 +131,22 @@ int main()
                 window.close();
         }
                                                                             // Наши нажатия на клавиши
-        if (Keyboard::isKeyPressed(Keyboard::Left)) dir=1;
-        if (Keyboard::isKeyPressed(Keyboard::Right))  dir=2;
-        if (Keyboard::isKeyPressed(Keyboard::Up)) dir=3;
-        if (Keyboard::isKeyPressed(Keyboard::Down)) dir=0;
+        if (Keyboard::isKeyPressed(Keyboard::Left)) {
+            dir = 1;
+            snakeHeadSprite.setTextureRect(IntRect(190, 64, 64, 64));
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Right)){
+            dir=2;
+            snakeHeadSprite.setTextureRect(IntRect(258, 0, 64, 64));
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Up)) {
+            dir = 3;
+            snakeHeadSprite.setTextureRect(IntRect(190, 0, 64, 64));
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Down)){
+            dir=0;
+            snakeHeadSprite.setTextureRect(IntRect(260, 65, 64, 64));
+        }
                                                                                 //Скорость игры, таймер, делаем перемещение змейки плавным
         if (timer>delay){
             timer=0;
@@ -141,22 +155,23 @@ int main()
                                                                             //Отрисовка
         window.clear(Color(93, 131, 255));
 
-        for (int i=0; i<Weight + 1; i++)
-            for (int j=0; j<Height + 1; j++) {
-                gameBackground.setPosition(i*size,j*size);
-                gameBackground.setTextureRect(IntRect(0, 0, 24, 24));
+                gameBackground.setTextureRect(IntRect(0, 0, 740, 720));
                 window.draw(gameBackground);
-            }
 
         for (int i=0;i<num;i++) {
-            snakeSprite.setPosition(snake[i].x*size, snake[i].y*size);
-            snakeSprite.setTextureRect(IntRect(0, 0, 16, 16));
-            window.draw(snakeSprite);
+            snakeHeadSprite.setPosition(snake[0].x*size, snake[0].y*size);
+            snakePartsSprite.setPosition(snake[i].x*size, snake[i].y*size);
+            if(i == 0) {
+                window.draw(snakeHeadSprite);
+            } else {
+                snakePartsSprite.setTextureRect(IntRect(60, 0, 64, 64));
+                window.draw(snakePartsSprite);
+            }
         }
 
 
-            whiteApple.spawnFruits(whiteAppleSprite);
-            greenApple.spawnFruits(snakeSprite);
+            whiteApple.spawnFruits(redAppleSprite);
+            greenApple.spawnFruits(greenAppleSprite);
 
 
 
