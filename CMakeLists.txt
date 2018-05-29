@@ -5,9 +5,9 @@ project(${PROJECT_NAME})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc")
 set(CMAKE_CXX_STANDARD 14)
 
-set(SOURCE_FILES main.cpp map.h view.h Pojo.h)
+set(SOURCE_FILES main.cpp level.h)
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} level.h)
 
 
 set(SFML_ROOT H:/Works/Programming/Libs/SFML)

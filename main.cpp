@@ -1,6 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <time.h>
 #include <iostream>
+#include <sstream>
+#include "level.h"
+#include <sstream>
 using namespace sf;
 RenderWindow window(VideoMode(1280, 720), "Snake Game!");
 
@@ -8,6 +11,7 @@ int Weight=10, Height=10;
 int size=64;
 int w = size*Weight;
 int h = size*Height;
+int score = 0;
 
 int dir,num=4;
 
@@ -83,13 +87,19 @@ public:
             num++;
             setObjectX(rand() % Weight * size);
             setObjectY(rand() % Height * size);
+            score+=rand() % 5;
         }
     }
 };
 
 int main()
 {
+    setlocale(LC_ALL, "Russian");
     srand(time(0));
+    Font font;
+    font.loadFromFile("../Resources/Fonts/CyrilicOld.TTF");
+    Text scoreText("", font, 50);
+    Text levelInfo("", font, 30);
     snakeLogic logic;
     Fruits whiteApple;
     Fruits greenApple;
@@ -99,12 +109,14 @@ int main()
     Texture redAppleTexture;
     Texture greenAppleTexture;
     Texture snakePartsTexture;
+    Texture menuScroll;
 
-    gameTableTexture.loadFromFile("../Images/background.jpg");
-    snakeHeadTexture.loadFromFile("../images/snake.png");
-    snakePartsTexture.loadFromFile("../Images/snake.png");
-    redAppleTexture.loadFromFile("../Images/appleRed.png");
-    greenAppleTexture.loadFromFile("../Images/appleGreen.png");
+    gameTableTexture.loadFromFile("../Resources/Images/background.png");
+    snakeHeadTexture.loadFromFile("../Resources/images/snake.png");
+    snakePartsTexture.loadFromFile("../Resources/Images/snakePart.png");
+    redAppleTexture.loadFromFile("../Resources/Images/appleRed.png");
+    greenAppleTexture.loadFromFile("../Resources/Images/appleGreen.png");
+    menuScroll.loadFromFile("../Resources/Images/gameScroll.png");
 
 
     Sprite gameBackground(gameTableTexture);
@@ -112,10 +124,12 @@ int main()
     Sprite snakePartsSprite(snakePartsTexture);
     Sprite redAppleSprite(redAppleTexture);
     Sprite greenAppleSprite(greenAppleTexture);
+    Sprite menuScrollSprite(menuScroll);
 
     snakeHeadSprite.setTextureRect(IntRect(250, 0, 64, 64));
 
 
+    bool showTextLevel = false;
     Clock clock;
     float timer=0, delay=0.1;
 
@@ -127,8 +141,9 @@ int main()
         Event e;
         while (window.pollEvent(e))
         {
-            if (e.type == Event::Closed)
+            if (e.type == Event::Closed) {
                 window.close();
+            }
         }
                                                                             // Наши нажатия на клавиши
         if (Keyboard::isKeyPressed(Keyboard::Left)) {
@@ -155,7 +170,7 @@ int main()
                                                                             //Отрисовка
         window.clear(Color(93, 131, 255));
 
-                gameBackground.setTextureRect(IntRect(0, 0, 740, 720));
+                gameBackground.setTextureRect(IntRect(0, 0, 1280, 740));
                 window.draw(gameBackground);
 
         for (int i=0;i<num;i++) {
@@ -164,7 +179,7 @@ int main()
             if(i == 0) {
                 window.draw(snakeHeadSprite);
             } else {
-                snakePartsSprite.setTextureRect(IntRect(60, 0, 64, 64));
+                snakePartsSprite.setTextureRect(IntRect(0, 0, 61, 64));
                 window.draw(snakePartsSprite);
             }
         }
@@ -173,10 +188,31 @@ int main()
             whiteApple.spawnFruits(redAppleSprite);
             greenApple.spawnFruits(greenAppleSprite);
 
+            menuScrollSprite.setPosition(700, -20);
+
+            scoreText.setPosition(800, 150);
+            levelInfo.setPosition(800, 200);
+
+            std::ostringstream totalScore;
+            totalScore << score;
+
+            std::ostringstream currentLevel;
+            currentLevel << getCurrentLevel(score);
+
+            std::ostringstream textLevel;
+            textLevel << getTextLevel(score);
 
 
+            scoreText.setString("Total score : " + totalScore.str());
 
-            window.display();
+            levelInfo.setString("Level : " + currentLevel.str() + "\n " + " Info: " + textLevel.str() + "\n");
+
+            window.draw(menuScrollSprite);
+
+            window.draw(scoreText);
+            window.draw(levelInfo);
+
+        window.display();
     }
 
     return 0;
