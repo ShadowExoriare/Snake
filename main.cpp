@@ -12,6 +12,7 @@ int size=64;
 int w = size*Weight;
 int h = size*Height;
 int score = 0;
+Font font;
 
 int dir,num=4;
 
@@ -92,12 +93,96 @@ public:
     }
 };
 
+void menu() {
+    bool isMenu = true;
+    Texture gameStartTexture;
+    Texture gameSettingsTexture;
+    Texture gameFriendsTexture;
+    Texture gameQuitTexture;
+    Texture gameMenuBackgroundTexture;
+
+    gameQuitTexture.loadFromFile("./Resources/Images/quitGameButton.png");
+    gameFriendsTexture.loadFromFile("./Resources/Images/friendsGameButton.png");
+    gameSettingsTexture.loadFromFile("./Resources/Images/settingsGameButton.png");
+    gameStartTexture.loadFromFile("./Resources/Images/startGameButton.png");
+    gameMenuBackgroundTexture.loadFromFile("./Resources/Images/gameMenuBackground.jpg");
+
+    Sprite startGameButton;
+    Sprite settingsGameButton;
+    Sprite friendsGameButton;
+    Sprite gameQuitButton;
+    Sprite gameMenuBackgroundSprite;
+
+    startGameButton.setTexture(gameStartTexture);
+    startGameButton.setPosition(200, 0);
+    settingsGameButton.setTexture(gameSettingsTexture);
+    settingsGameButton.setPosition(200, 200);
+    friendsGameButton.setTexture(gameFriendsTexture);
+    friendsGameButton.setPosition(200, 400);
+    gameQuitButton.setTexture(gameQuitTexture);
+    gameQuitButton.setPosition(200, 600);
+
+    gameMenuBackgroundSprite.setTexture(gameMenuBackgroundTexture);
+    gameMenuBackgroundSprite.setTextureRect(IntRect(300, 300, 1280, 720));
+
+
+    Event e;
+
+    while(isMenu) {
+        if (Keyboard::isKeyPressed(Keyboard::Space)) {
+            isMenu = false;
+        }
+        while (window.pollEvent(e))
+        {
+            if (e.type == Event::Closed) {
+                window.close();
+            }
+        }
+        window.draw(gameMenuBackgroundSprite);
+        window.draw(startGameButton);
+        window.draw(settingsGameButton);
+        window.draw(friendsGameButton);
+        window.draw(gameQuitButton);
+
+        if(IntRect(200, 0, 515, 200).contains(Mouse::getPosition(window))){
+            startGameButton.setColor(Color::Green);
+            if(Mouse::isButtonPressed(Mouse::Left)){
+                isMenu = false;
+            }
+        } else {
+            startGameButton.setColor(Color::White);
+        }
+        if(IntRect(200, 200, 515, 200).contains(Mouse::getPosition(window))){
+            settingsGameButton.setColor(Color::Green);
+        } else {
+            settingsGameButton.setColor(Color::White);
+        }
+        if(IntRect(200, 400, 515, 200).contains(Mouse::getPosition(window))){
+            friendsGameButton.setColor(Color::Green);
+        } else {
+            friendsGameButton.setColor(Color::White);
+        }
+        if(IntRect(200, 600, 515, 200).contains(Mouse::getPosition(window))){
+            gameQuitButton.setColor(Color::Red);
+            if(Mouse::isButtonPressed(Mouse::Left)){
+                window.close();
+            }
+        } else {
+            gameQuitButton.setColor(Color::White);
+        }
+
+
+        window.display();
+        window.clear(Color(255, 110, 50));
+    }
+}
+
 int main()
 {
     setlocale(LC_ALL, "Russian");
+    font.loadFromFile("./Resources/Fonts/CyrilicOld.TTF");
     srand(time(0));
-    Font font;
-    font.loadFromFile("../Resources/Fonts/CyrilicOld.TTF");
+    menu();
     Text scoreText("", font, 50);
     Text levelInfo("", font, 30);
     snakeLogic logic;
@@ -111,12 +196,12 @@ int main()
     Texture snakePartsTexture;
     Texture menuScroll;
 
-    gameTableTexture.loadFromFile("../Resources/Images/background.png");
-    snakeHeadTexture.loadFromFile("../Resources/images/snake.png");
-    snakePartsTexture.loadFromFile("../Resources/Images/snakePart.png");
-    redAppleTexture.loadFromFile("../Resources/Images/appleRed.png");
-    greenAppleTexture.loadFromFile("../Resources/Images/appleGreen.png");
-    menuScroll.loadFromFile("../Resources/Images/gameScroll.png");
+    gameTableTexture.loadFromFile("./Resources/Images/background.png");
+    snakeHeadTexture.loadFromFile("./Resources/images/snake.png");
+    snakePartsTexture.loadFromFile("./Resources/Images/snakePart.png");
+    redAppleTexture.loadFromFile("./Resources/Images/appleRed.png");
+    greenAppleTexture.loadFromFile("./Resources/Images/appleGreen.png");
+    menuScroll.loadFromFile("./Resources/Images/gameScroll.png");
 
 
     Sprite gameBackground(gameTableTexture);
