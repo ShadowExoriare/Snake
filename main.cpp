@@ -3,7 +3,8 @@
 #include <iostream>
 #include <sstream>
 #include "level.h"
-#include <sstream>
+#include <list>
+#include <string>
 using namespace sf;
 RenderWindow window(VideoMode(1280, 720), "Snake Game!");
 
@@ -12,6 +13,8 @@ int size=64;
 int w = size*Weight;
 int h = size*Height;
 int score = 0;
+bool endingGameBad = false;
+bool endingGameGood = false;
 Font font;
 
 int dir,num=4;
@@ -21,13 +24,25 @@ struct Snake {
 }  snake[100];
 
 
+int randScore() {
+    return rand() % 10;
+}
+
 class snakeLogic{
 public:
     void control() {
-        if (snake[0].x > Weight) snake[0].x = 0;
-        if (snake[0].x < 0) snake[0].x = Weight;
-        if (snake[0].y > Height) snake[0].y = 0;
-        if (snake[0].y < 0) snake[0].y = Height;
+        if (snake[0].x > Weight) {
+            snake[0].x = 0;
+        }
+        if (snake[0].x < 0){
+            snake[0].x = Weight;
+        }
+        if (snake[0].y > Height) {
+            snake[0].y = 0;
+        }
+        if (snake[0].y < 0) {
+            snake[0].y = Height;
+        }
 
         for (int i = 1; i < num; i++) {
             if (snake[0].x == snake[i].x && snake[0].y == snake[i].y)
@@ -55,8 +70,10 @@ class Fruits{
 private:
     int objectX;
     int objectY;
+    std::string fruitType;
 public:
-    Fruits() {
+    Fruits(std::string fruit) {
+        fruitType = fruit;
         objectX = rand() % Weight * size;
         objectY = rand() % Height * size;
     }
@@ -77,6 +94,14 @@ public:
         Fruits::objectY = objectY;
     }
 
+    void setFruitType(const std::string &fruitType) {
+        Fruits::fruitType = fruitType;
+    }
+
+    const std::string &getFruitType() const {
+        return fruitType;
+    }
+
     void spawnFruits(Sprite objectSprite) {
         objectSprite.setPosition(getObjectX(), getObjectY());
         window.draw(objectSprite);
@@ -88,8 +113,32 @@ public:
             num++;
             setObjectX(rand() % Weight * size);
             setObjectY(rand() % Height * size);
-            score+=rand() % 5;
+            if(getFruitType() == "bad") {
+                playerPunish();
+            }
+
+            if(getFruitType() == "good"){
+                playerReward();
+            }
+
+            if(getFruitType() == "badEnding"){
+                endingGameBad = true;
+            }
+            if(getFruitType() == "goodEnding"){
+                endingGameGood = true;
+            }
         }
+    }
+
+    void playerPunish() {
+        score -= randScore() * 5;
+        if(score < 0) {
+            score = 0;
+        }
+    }
+
+    void playerReward(){
+        score += randScore();
     }
 };
 
@@ -186,30 +235,38 @@ int main()
     Text scoreText("", font, 50);
     Text levelInfo("", font, 30);
     snakeLogic logic;
-    Fruits whiteApple;
-    Fruits greenApple;
+    Fruits redApple("good");
+    Fruits greenApple("good");
+    Fruits grayApple("bad");
+    Fruits strawberry("firstFinish");
 
     Texture gameTableTexture;
     Texture snakeHeadTexture;
     Texture redAppleTexture;
+    Texture grayAppleTexture;
     Texture greenAppleTexture;
     Texture snakePartsTexture;
     Texture menuScroll;
+    Texture strawberryTexture;
 
     gameTableTexture.loadFromFile("./Resources/Images/background.png");
     snakeHeadTexture.loadFromFile("./Resources/images/snake.png");
     snakePartsTexture.loadFromFile("./Resources/Images/snakePart.png");
     redAppleTexture.loadFromFile("./Resources/Images/appleRed.png");
     greenAppleTexture.loadFromFile("./Resources/Images/appleGreen.png");
+    grayAppleTexture.loadFromFile("./Resources/Images/appleGray.png");
     menuScroll.loadFromFile("./Resources/Images/gameScroll.png");
+    strawberryTexture.loadFromFile("./Resources/Images/strawberry.png");
 
 
     Sprite gameBackground(gameTableTexture);
     Sprite snakeHeadSprite(snakeHeadTexture);
     Sprite snakePartsSprite(snakePartsTexture);
     Sprite redAppleSprite(redAppleTexture);
+    Sprite grayAppleSprite(grayAppleTexture);
     Sprite greenAppleSprite(greenAppleTexture);
     Sprite menuScrollSprite(menuScroll);
+    Sprite strawberrySprite(strawberryTexture);
 
     snakeHeadSprite.setTextureRect(IntRect(250, 0, 64, 64));
 
@@ -269,9 +326,17 @@ int main()
             }
         }
 
+        redApple.spawnFruits(redAppleSprite);
+        greenApple.spawnFruits(greenAppleSprite);
+        grayApple.spawnFruits(grayAppleSprite);
 
-            whiteApple.spawnFruits(redAppleSprite);
-            greenApple.spawnFruits(greenAppleSprite);
+        if(score > 500) {
+            int firstFinished = rand() % 100;
+                if(firstFinished == 2 || firstFinished < 2){
+                    strawberry.spawnFruits(strawberrySprite);
+                }
+        }
+
 
             menuScrollSprite.setPosition(700, -20);
 
