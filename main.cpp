@@ -10,8 +10,6 @@ RenderWindow window(VideoMode(1280, 720), "Snake Game!");
 
 int Weight=10, Height=10;
 int size=64;
-int w = size*Weight;
-int h = size*Height;
 int score = 0;
 bool endingGameBad = false;
 bool endingGameGood = false;
@@ -141,104 +139,148 @@ public:
         score += randScore();
     }
 };
+class gameMoments {
+public:
+    void menu() {
+        bool isMenu = true;
+        Texture gameStartTexture;
+        Texture gameSettingsTexture;
+        Texture gameFriendsTexture;
+        Texture gameQuitTexture;
+        Texture gameMenuBackgroundTexture;
 
-void menu() {
-    bool isMenu = true;
-    Texture gameStartTexture;
-    Texture gameSettingsTexture;
-    Texture gameFriendsTexture;
-    Texture gameQuitTexture;
-    Texture gameMenuBackgroundTexture;
+        gameQuitTexture.loadFromFile("./Resources/Images/quitGameButton.png");
+        gameFriendsTexture.loadFromFile("./Resources/Images/friendsGameButton.png");
+        gameSettingsTexture.loadFromFile("./Resources/Images/settingsGameButton.png");
+        gameStartTexture.loadFromFile("./Resources/Images/startGameButton.png");
+        gameMenuBackgroundTexture.loadFromFile("./Resources/Images/gameMenuBackground.jpg");
 
-    gameQuitTexture.loadFromFile("./Resources/Images/quitGameButton.png");
-    gameFriendsTexture.loadFromFile("./Resources/Images/friendsGameButton.png");
-    gameSettingsTexture.loadFromFile("./Resources/Images/settingsGameButton.png");
-    gameStartTexture.loadFromFile("./Resources/Images/startGameButton.png");
-    gameMenuBackgroundTexture.loadFromFile("./Resources/Images/gameMenuBackground.jpg");
+        Sprite startGameButton;
+        Sprite settingsGameButton;
+        Sprite friendsGameButton;
+        Sprite gameQuitButton;
+        Sprite gameMenuBackgroundSprite;
 
-    Sprite startGameButton;
-    Sprite settingsGameButton;
-    Sprite friendsGameButton;
-    Sprite gameQuitButton;
-    Sprite gameMenuBackgroundSprite;
+        startGameButton.setTexture(gameStartTexture);
+        startGameButton.setPosition(200, 0);
+        settingsGameButton.setTexture(gameSettingsTexture);
+        settingsGameButton.setPosition(200, 200);
+        friendsGameButton.setTexture(gameFriendsTexture);
+        friendsGameButton.setPosition(200, 400);
+        gameQuitButton.setTexture(gameQuitTexture);
+        gameQuitButton.setPosition(200, 600);
 
-    startGameButton.setTexture(gameStartTexture);
-    startGameButton.setPosition(200, 0);
-    settingsGameButton.setTexture(gameSettingsTexture);
-    settingsGameButton.setPosition(200, 200);
-    friendsGameButton.setTexture(gameFriendsTexture);
-    friendsGameButton.setPosition(200, 400);
-    gameQuitButton.setTexture(gameQuitTexture);
-    gameQuitButton.setPosition(200, 600);
-
-    gameMenuBackgroundSprite.setTexture(gameMenuBackgroundTexture);
-    gameMenuBackgroundSprite.setTextureRect(IntRect(300, 300, 1280, 720));
+        gameMenuBackgroundSprite.setTexture(gameMenuBackgroundTexture);
+        gameMenuBackgroundSprite.setTextureRect(IntRect(300, 300, 1280, 720));
 
 
-    Event e;
+        Event e;
 
-    while(isMenu) {
-        if (Keyboard::isKeyPressed(Keyboard::Space)) {
-            isMenu = false;
-        }
-        while (window.pollEvent(e))
-        {
-            if (e.type == Event::Closed) {
-                window.close();
-            }
-        }
-        window.draw(gameMenuBackgroundSprite);
-        window.draw(startGameButton);
-        window.draw(settingsGameButton);
-        window.draw(friendsGameButton);
-        window.draw(gameQuitButton);
-
-        if(IntRect(200, 0, 515, 200).contains(Mouse::getPosition(window))){
-            startGameButton.setColor(Color::Green);
-            if(Mouse::isButtonPressed(Mouse::Left)){
+        while (isMenu) {
+            if (Keyboard::isKeyPressed(Keyboard::Space)) {
                 isMenu = false;
             }
-        } else {
-            startGameButton.setColor(Color::White);
-        }
-        if(IntRect(200, 200, 515, 200).contains(Mouse::getPosition(window))){
-            settingsGameButton.setColor(Color::Green);
-        } else {
-            settingsGameButton.setColor(Color::White);
-        }
-        if(IntRect(200, 400, 515, 200).contains(Mouse::getPosition(window))){
-            friendsGameButton.setColor(Color::Green);
-        } else {
-            friendsGameButton.setColor(Color::White);
-        }
-        if(IntRect(200, 600, 515, 200).contains(Mouse::getPosition(window))){
-            gameQuitButton.setColor(Color::Red);
-            if(Mouse::isButtonPressed(Mouse::Left)){
-                window.close();
+            while (window.pollEvent(e)) {
+                if (e.type == Event::Closed) {
+                    window.close();
+                }
             }
-        } else {
-            gameQuitButton.setColor(Color::White);
+            window.draw(gameMenuBackgroundSprite);
+            window.draw(startGameButton);
+            window.draw(settingsGameButton);
+            window.draw(friendsGameButton);
+            window.draw(gameQuitButton);
+
+            if (IntRect(200, 0, 515, 200).contains(Mouse::getPosition(window))) {
+                startGameButton.setColor(Color::Green);
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    isMenu = false;
+                }
+            } else {
+                startGameButton.setColor(Color::White);
+            }
+            if (IntRect(200, 200, 515, 200).contains(Mouse::getPosition(window))) {
+                settingsGameButton.setColor(Color::Green);
+            } else {
+                settingsGameButton.setColor(Color::White);
+            }
+            if (IntRect(200, 400, 515, 200).contains(Mouse::getPosition(window))) {
+                friendsGameButton.setColor(Color::Green);
+            } else {
+                friendsGameButton.setColor(Color::White);
+            }
+            if (IntRect(200, 600, 515, 200).contains(Mouse::getPosition(window))) {
+                gameQuitButton.setColor(Color::Red);
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    window.close();
+                }
+            } else {
+                gameQuitButton.setColor(Color::White);
+            }
+
+
+            window.display();
+            window.clear(Color(255, 110, 50));
         }
+    }
+
+    void goodEnding() {
+        Text goodEnding("", font, 30);
+        Texture gameMenuBackgroundTexture;
+        gameMenuBackgroundTexture.loadFromFile("./Resources/Images/gameMenuBackground.jpg");
+        Sprite gameMenuBackgroundSprite;
+        gameMenuBackgroundSprite.setTexture(gameMenuBackgroundTexture);
+        gameMenuBackgroundSprite.setTextureRect(IntRect(300, 300, 1280, 720));
+        goodEnding.setString("Snake will survived, you take 2 ending!");
+        goodEnding.setPosition(640, 360);
+
+        window.draw(goodEnding);
+        window.draw(gameMenuBackgroundSprite);
 
 
         window.display();
-        window.clear(Color(255, 110, 50));
+        Color(255, 110, 50);
     }
-}
+
+    void badEnding() {
+        Text badEnding("", font, 30);
+        Texture gameMenuBackgroundTexture;
+        Texture poisonTexture;
+        gameMenuBackgroundTexture.loadFromFile("./Resources/Images/gameMenuBackground.jpg");
+        poisonTexture.loadFromFile("./Resources/Images/poison.png");
+        Sprite gameMenuBackgroundSprite;
+        Sprite poisonSprite(poisonTexture);
+        gameMenuBackgroundSprite.setTexture(gameMenuBackgroundTexture);
+        gameMenuBackgroundSprite.setTextureRect(IntRect(300, 300, 1280, 720));
+        badEnding.setPosition(640, 360);
+        poisonSprite.setPosition(320, 200);
+
+        badEnding.setString("This fruit will be on poisoned, and snake die ;(");
+
+        window.draw(badEnding);
+        window.draw(gameMenuBackgroundSprite);
+        window.draw(poisonSprite);
+
+        window.display();
+        Color(255, 110, 50);
+    }
+};
 
 int main()
 {
     setlocale(LC_ALL, "Russian");
     font.loadFromFile("./Resources/Fonts/CyrilicOld.TTF");
     srand(time(0));
-    menu();
+    gameMoments gameWindows;
+    gameWindows.menu();
     Text scoreText("", font, 50);
     Text levelInfo("", font, 30);
     snakeLogic logic;
     Fruits redApple("good");
     Fruits greenApple("good");
     Fruits grayApple("bad");
-    Fruits strawberry("firstFinish");
+    Fruits strawberry("badEnding");
+    Fruits pear("goodEnding");
 
     Texture gameTableTexture;
     Texture snakeHeadTexture;
@@ -248,6 +290,7 @@ int main()
     Texture snakePartsTexture;
     Texture menuScroll;
     Texture strawberryTexture;
+    Texture pearTexture;
 
     gameTableTexture.loadFromFile("./Resources/Images/background.png");
     snakeHeadTexture.loadFromFile("./Resources/images/snake.png");
@@ -257,6 +300,7 @@ int main()
     grayAppleTexture.loadFromFile("./Resources/Images/appleGray.png");
     menuScroll.loadFromFile("./Resources/Images/gameScroll.png");
     strawberryTexture.loadFromFile("./Resources/Images/strawberry.png");
+    pearTexture.loadFromFile("./Resources/Images/pear.png");
 
 
     Sprite gameBackground(gameTableTexture);
@@ -267,8 +311,18 @@ int main()
     Sprite greenAppleSprite(greenAppleTexture);
     Sprite menuScrollSprite(menuScroll);
     Sprite strawberrySprite(strawberryTexture);
+    Sprite pearSprite(pearTexture);
 
-    snakeHeadSprite.setTextureRect(IntRect(250, 0, 64, 64));
+
+    if(endingGameBad){
+        gameWindows.badEnding();
+    }
+
+    if (endingGameGood) {
+        gameWindows.goodEnding();
+    }
+
+    snakeHeadSprite.setTextureRect(IntRect(260, 65, 64, 64));
 
 
     bool showTextLevel = false;
@@ -330,11 +384,12 @@ int main()
         greenApple.spawnFruits(greenAppleSprite);
         grayApple.spawnFruits(grayAppleSprite);
 
-        if(score > 500) {
-            int firstFinished = rand() % 100;
-                if(firstFinished == 2 || firstFinished < 2){
-                    strawberry.spawnFruits(strawberrySprite);
-                }
+        if(score >= 500) {
+            strawberry.spawnFruits(strawberrySprite);
+        }
+
+        if(score >= 1000){
+            pear.spawnFruits(pearSprite);
         }
 
 

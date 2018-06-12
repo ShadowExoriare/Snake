@@ -10,7 +10,7 @@ set(SOURCE_FILES main.cpp level.h)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} level.h)
 
 
-set(SFML_ROOT H:/Works/Programming/Libs/SFML)
+set(SFML_ROOT H:/Works/Programming/C++/Snake/libs/SFML)
 set(SFML_STATIC_LIBRARIES TRUE)
 
 set(CMAKE_MODULE_PATH "${SFML_ROOT}/cmake/Modules")
