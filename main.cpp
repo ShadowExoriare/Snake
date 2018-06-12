@@ -11,9 +11,9 @@ RenderWindow window(VideoMode(1280, 720), "Snake Game!");
 int Weight=10, Height=10;
 int size=64;
 int score = 0;
-bool endingGameBad = false;
-bool endingGameGood = false;
 Font font;
+bool gameEndingBad;
+bool gameEndingGood;
 
 int dir,num=4;
 
@@ -120,13 +120,14 @@ public:
             }
 
             if(getFruitType() == "badEnding"){
-                endingGameBad = true;
+                gameEndingBad = true;
             }
             if(getFruitType() == "goodEnding"){
-                endingGameGood = true;
+                gameEndingGood = true;
             }
         }
     }
+
 
     void playerPunish() {
         score -= randScore() * 5;
@@ -139,8 +140,7 @@ public:
         score += randScore();
     }
 };
-class gameMoments {
-public:
+
     void menu() {
         bool isMenu = true;
         Texture gameStartTexture;
@@ -224,55 +224,86 @@ public:
         }
     }
 
-    void goodEnding() {
-        Text goodEnding("", font, 30);
-        Texture gameMenuBackgroundTexture;
-        gameMenuBackgroundTexture.loadFromFile("./Resources/Images/gameMenuBackground.jpg");
-        Sprite gameMenuBackgroundSprite;
-        gameMenuBackgroundSprite.setTexture(gameMenuBackgroundTexture);
-        gameMenuBackgroundSprite.setTextureRect(IntRect(300, 300, 1280, 720));
-        goodEnding.setString("Snake will survived, you take 2 ending!");
-        goodEnding.setPosition(640, 360);
 
-        window.draw(goodEnding);
+
+void goodEnding() {
+    Text goodEnding("", font, 30);
+    Texture gameMenuBackgroundTexture;
+    gameMenuBackgroundTexture.loadFromFile("./Resources/Images/gameMenuBackground.jpg");
+    Sprite gameMenuBackgroundSprite;
+    gameMenuBackgroundSprite.setTexture(gameMenuBackgroundTexture);
+    gameMenuBackgroundSprite.setTextureRect(IntRect(300, 300, 1280, 720));
+    goodEnding.setString("Snake will survived, you take 2 ending!");
+    Texture winTexture;
+    winTexture.loadFromFile("./Resources/Images/win.png");
+    Sprite winSprite;
+    winSprite.setTexture(winTexture);
+    winSprite.setPosition(320, 200);
+
+    while(gameEndingGood) {
         window.draw(gameMenuBackgroundSprite);
+        window.draw(goodEnding);
+        window.draw(winSprite);
 
 
         window.display();
-        Color(255, 110, 50);
+        window.clear(Color(255, 110, 50));
+
+        if(Keyboard::isKeyPressed(Keyboard::Space)){
+            gameEndingGood = false;
+        }
+
+        Event e;
+        while (window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                window.close();
+            }
+        }
     }
+}
 
-    void badEnding() {
-        Text badEnding("", font, 30);
-        Texture gameMenuBackgroundTexture;
-        Texture poisonTexture;
-        gameMenuBackgroundTexture.loadFromFile("./Resources/Images/gameMenuBackground.jpg");
-        poisonTexture.loadFromFile("./Resources/Images/poison.png");
-        Sprite gameMenuBackgroundSprite;
-        Sprite poisonSprite(poisonTexture);
-        gameMenuBackgroundSprite.setTexture(gameMenuBackgroundTexture);
-        gameMenuBackgroundSprite.setTextureRect(IntRect(300, 300, 1280, 720));
-        badEnding.setPosition(640, 360);
-        poisonSprite.setPosition(320, 200);
+void badEnding() {
+    Text badEnding("", font, 30);
+    Texture gameMenuBackgroundTexture;
+    Texture poisonTexture;
+    gameMenuBackgroundTexture.loadFromFile("./Resources/Images/gameMenuBackground.jpg");
+    poisonTexture.loadFromFile("./Resources/Images/poison.png");
+    Sprite gameMenuBackgroundSprite;
+    Sprite poisonSprite(poisonTexture);
+    gameMenuBackgroundSprite.setTexture(gameMenuBackgroundTexture);
+    gameMenuBackgroundSprite.setTextureRect(IntRect(300, 300, 1280, 720));
+    poisonSprite.setPosition(320, 200);
 
-        badEnding.setString("This fruit will be on poisoned, and snake die ;(");
+    badEnding.setString("This fruit will be on poisoned, and snake die ;(");
 
-        window.draw(badEnding);
+    while(gameEndingBad) {
+
         window.draw(gameMenuBackgroundSprite);
         window.draw(poisonSprite);
+        window.draw(badEnding);
+
+        if (Keyboard::isKeyPressed(Keyboard::Space)) {
+            gameEndingBad = false;
+        }
+
+        Event e;
+        while (window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                window.close();
+            }
+        }
 
         window.display();
-        Color(255, 110, 50);
+        window.clear(Color(255, 110, 50));
     }
-};
+}
 
 int main()
 {
     setlocale(LC_ALL, "Russian");
     font.loadFromFile("./Resources/Fonts/CyrilicOld.TTF");
     srand(time(0));
-    gameMoments gameWindows;
-    gameWindows.menu();
+    menu();
     Text scoreText("", font, 50);
     Text levelInfo("", font, 30);
     snakeLogic logic;
@@ -313,15 +344,6 @@ int main()
     Sprite strawberrySprite(strawberryTexture);
     Sprite pearSprite(pearTexture);
 
-
-    if(endingGameBad){
-        gameWindows.badEnding();
-    }
-
-    if (endingGameGood) {
-        gameWindows.goodEnding();
-    }
-
     snakeHeadSprite.setTextureRect(IntRect(260, 65, 64, 64));
 
 
@@ -333,6 +355,7 @@ int main()
         float time = clock.getElapsedTime().asSeconds();
         clock.restart();
         timer+=time;
+
                                                                             // На случай, если захотим выйти
         Event e;
         while (window.pollEvent(e))
@@ -342,19 +365,19 @@ int main()
             }
         }
                                                                             // Наши нажатия на клавиши
-        if (Keyboard::isKeyPressed(Keyboard::Left)) {
+        if (Keyboard::isKeyPressed(Keyboard::Left) && dir != 2) {
             dir = 1;
             snakeHeadSprite.setTextureRect(IntRect(190, 64, 64, 64));
         }
-        if (Keyboard::isKeyPressed(Keyboard::Right)){
+        if (Keyboard::isKeyPressed(Keyboard::Right) && dir != 1){
             dir=2;
             snakeHeadSprite.setTextureRect(IntRect(258, 0, 64, 64));
         }
-        if (Keyboard::isKeyPressed(Keyboard::Up)) {
+        if (Keyboard::isKeyPressed(Keyboard::Up) && dir != 0) {
             dir = 3;
             snakeHeadSprite.setTextureRect(IntRect(190, 0, 64, 64));
         }
-        if (Keyboard::isKeyPressed(Keyboard::Down)){
+        if (Keyboard::isKeyPressed(Keyboard::Down) && dir != 3){
             dir=0;
             snakeHeadSprite.setTextureRect(IntRect(260, 65, 64, 64));
         }
@@ -380,16 +403,26 @@ int main()
             }
         }
 
+
         redApple.spawnFruits(redAppleSprite);
         greenApple.spawnFruits(greenAppleSprite);
         grayApple.spawnFruits(grayAppleSprite);
 
-        if(score >= 500) {
+        if(score >= 400 && num > 10) {
             strawberry.spawnFruits(strawberrySprite);
         }
 
-        if(score >= 1000){
+        if(score >= 500 && num > 15){
             pear.spawnFruits(pearSprite);
+        }
+
+        if(gameEndingGood){
+            goodEnding();
+            break;
+        }
+        if(gameEndingBad){
+            badEnding();
+            break;
         }
 
 
