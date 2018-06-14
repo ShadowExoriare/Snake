@@ -2,67 +2,35 @@
 #include <time.h>
 #include <iostream>
 #include <sstream>
-#include "level.h"
+#include "Snake.h"
+#include "Map.h"
 #include <list>
 #include <string>
 using namespace sf;
 RenderWindow window(VideoMode(1280, 720), "Snake Game!");
 
-int Weight=10, Height=10;
-int size=64;
 int score = 0;
 Font font;
 bool gameEndingBad;
 bool gameEndingGood;
 
-int dir,num=4;
+int dir;
 
-struct Snake {
-    int x,y;
-}  snake[100];
-
+Snake snake;
+Map map;
 
 int randScore() {
     return rand() % 10;
 }
 
-class snakeLogic{
-public:
-    void control() {
-        if (snake[0].x > Weight) {
-            snake[0].x = 0;
-        }
-        if (snake[0].x < 0){
-            snake[0].x = Weight;
-        }
-        if (snake[0].y > Height) {
-            snake[0].y = 0;
-        }
-        if (snake[0].y < 0) {
-            snake[0].y = Height;
-        }
 
-        for (int i = 1; i < num; i++) {
-            if (snake[0].x == snake[i].x && snake[0].y == snake[i].y)
-                num = i;
-        }
-    }
-    void keyboardControl(){
+void keyboardControl(){
 
-        if (dir==0) snake[0].y+=1;
-        if (dir==1) snake[0].x-=1;
-        if (dir==2) snake[0].x+=1;
-        if (dir==3) snake[0].y-=1;
-    }
-    void Tick() {
-        for (int i=num;i>0;--i) {
-            snake[i].x=snake[i-1].x;
-            snake[i].y=snake[i-1].y;
-        }
-        keyboardControl();
-        control();
-    }
-};
+    if (dir==0) snake.snakePart[0].y+=1;
+    if (dir==1) snake.snakePart[0].x-=1;
+    if (dir==2) snake.snakePart[0].x+=1;
+    if (dir==3) snake.snakePart[0].y-=1;
+}
 
 class Fruits{
 private:
@@ -72,8 +40,8 @@ private:
 public:
     Fruits(std::string fruit) {
         fruitType = fruit;
-        objectX = rand() % Weight * size;
-        objectY = rand() % Height * size;
+        objectX = rand() % map.getWeight() * map.getSize();
+        objectY = rand() % map.getHeight() * map.getSize();
     }
 
     int getObjectX() const {
@@ -107,10 +75,10 @@ public:
     }
 
     void eatFruits() {
-        if (snake[0].x * size == getObjectX() && snake[0].y * size == getObjectY()) {
-            num++;
-            setObjectX(rand() % Weight * size);
-            setObjectY(rand() % Height * size);
+        if (snake.snakePart[0].x * map.getSize() == getObjectX() && snake.snakePart[0].y * map.getSize() == getObjectY()) {
+            snake.lengthPlus(snake);
+            setObjectX(rand() % map.getWeight() * map.getSize());
+            setObjectY(rand() % map.getHeight() * map.getSize());
             if(getFruitType() == "bad") {
                 playerPunish();
             }
@@ -306,7 +274,6 @@ int main()
     menu();
     Text scoreText("", font, 50);
     Text levelInfo("", font, 30);
-    snakeLogic logic;
     Fruits redApple("good");
     Fruits greenApple("good");
     Fruits grayApple("bad");
@@ -384,7 +351,9 @@ int main()
                                                                                 //Скорость игры, таймер, делаем перемещение змейки плавным
         if (timer>delay){
             timer=0;
-            logic.Tick();
+            snake.tick(snake);
+            snake.snakeLogic(map, snake);
+            keyboardControl();
         }
                                                                             //Отрисовка
         window.clear(Color(93, 131, 255));
@@ -392,9 +361,9 @@ int main()
                 gameBackground.setTextureRect(IntRect(0, 0, 1280, 740));
                 window.draw(gameBackground);
 
-        for (int i=0;i<num;i++) {
-            snakeHeadSprite.setPosition(snake[0].x*size, snake[0].y*size);
-            snakePartsSprite.setPosition(snake[i].x*size, snake[i].y*size);
+        for (int i=0;i < snake.getLength();i++) {
+            snakeHeadSprite.setPosition(snake.snakePart[0].x*map.getSize(), snake.snakePart[0].y*map.getSize());
+            snakePartsSprite.setPosition(snake.snakePart[i].x*map.getSize(), snake.snakePart[i].y*map.getSize());
             if(i == 0) {
                 window.draw(snakeHeadSprite);
             } else {
@@ -408,11 +377,11 @@ int main()
         greenApple.spawnFruits(greenAppleSprite);
         grayApple.spawnFruits(grayAppleSprite);
 
-        if(score >= 400 && num > 10) {
+        if(score >= 400 && snake.getLength() > 10) {
             strawberry.spawnFruits(strawberrySprite);
         }
 
-        if(score >= 500 && num > 15){
+        if(score >= 500 && snake.getLength() > 15){
             pear.spawnFruits(pearSprite);
         }
 
@@ -434,16 +403,8 @@ int main()
             std::ostringstream totalScore;
             totalScore << score;
 
-            std::ostringstream currentLevel;
-            currentLevel << getCurrentLevel(score);
-
-            std::ostringstream textLevel;
-            textLevel << getTextLevel(score);
-
 
             scoreText.setString("Total score : " + totalScore.str());
-
-            levelInfo.setString("Level : " + currentLevel.str() + "\n " + " Info: " + textLevel.str() + "\n");
 
             window.draw(menuScrollSprite);
 
