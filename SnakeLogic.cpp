@@ -191,7 +191,7 @@ void SnakeLogic::gameMenu(){
             while (window.pollEvent(e)) {
                 if (e.type == Event::Closed) {
                     window.close();
-                    break;
+                    isMenu = false;
                 }
             }
             window.draw(gameMenuBackgroundSprite);
@@ -226,6 +226,7 @@ void SnakeLogic::gameMenu(){
             if (IntRect(200, 600, 515, 200).contains(Mouse::getPosition(window))) {
                 gameQuitButton.setColor(Color::Red);
                 if (Mouse::isButtonPressed(Mouse::Left)) {
+                    isMenu = false;
                     window.close();
                 }
             } else {

@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include "SnakeLogic.h"
 using namespace sf;
 
