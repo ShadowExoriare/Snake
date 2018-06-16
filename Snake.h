@@ -6,27 +6,26 @@
 #define SNAKE_SNAKE_H
 
 #include "Map.h"
+#include "Fruit.h"
+#include "GameRules.h"
 
 struct SnakePart{
     int x;
     int y;
 
+    int getX() const;
 
     void setX(int x);
 
-    void setY(int y);
-
-    int getX() const;
-
     int getY() const;
+
+    void setY(int y);
 };
 
 class Snake {
-private:
-    int dir = 1;
 public:
 
-    int length = 6;
+    int length = 1;
 
     SnakePart snakePart[100];
 
@@ -34,15 +33,11 @@ public:
 
     void setLength(int length);
 
-    int getDir() const;
-
-    void setDir(int dir);
-
     const SnakePart *getSnakePart() const;
 
     void lengthPlus(Snake snake);
 
-    void tick(Snake snake);
+    void tick(Snake snake, GameRules *rules);
 
     void snakeLogic(Map map, Snake snake);
 

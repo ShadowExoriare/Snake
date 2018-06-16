@@ -5,7 +5,7 @@ project(${PROJECT_NAME})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc")
 set(CMAKE_CXX_STANDARD 14)
 
-set(SOURCE_FILES main.cpp Snake.cpp Snake.h Map.cpp Map.h GameRules.cpp GameRules.h)
+set(SOURCE_FILES main.cpp Snake.cpp Snake.h Map.cpp Map.h GameRules.cpp GameRules.h SnakeLogic.cpp SnakeLogic.h Fruit.cpp Fruit.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} Snake.cpp)
 

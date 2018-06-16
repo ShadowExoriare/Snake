@@ -2,7 +2,18 @@
 // Created by black on 14.06.2018.
 //
 
+#include <SFML/Config.hpp>
 #include "Map.h"
+#include <stdlib.h>
+
+using namespace sf;
+int Map::genFruitX(){
+    return rand() % getWeight() * getSize();
+}
+
+int Map::genFruitY(){
+    return rand() % getHeight() * getSize();
+}
 
 int Map::getWeight() const {
     return weight;
@@ -27,3 +38,4 @@ int Map::getSize() const {
 void Map::setSize(int size) {
     Map::size = size;
 }
+

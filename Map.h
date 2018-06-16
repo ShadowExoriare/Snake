@@ -7,6 +7,11 @@
 
 
 class Map {
+private:
+    int weight = 10;
+    int height = 10;
+    int size = 64;
+
 public:
     int getWeight() const;
 
@@ -20,11 +25,9 @@ public:
 
     void setSize(int size);
 
-private:
-    int weight=10;
-    int height=10;
-    int size=64;
-public:
+    int genFruitX();
+
+    int genFruitY();
 
 };
 
